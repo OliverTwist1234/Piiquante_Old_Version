@@ -37,6 +37,18 @@ exports.modifySauce = (req, res, next) => {
     // si l'image est modifiée, on supprime l'ancienne image dans le dossier images
     Sauce.findOne({ _id: req.params.id })
       .then((sauce) => {
+        // si on utilise un id de sauce qui n'existe pas (sécurité)
+        if (!sauce) {
+          res.status(404).json({
+            error: new Error("Sauce non trouvée !"),
+          });
+        }
+        // et si le userId est différent de celui de l'utilisateur qui a créé la sauce (sécurité)
+        if (sauce.userId !== req.auth.userId) {
+          res.status(401).json({
+            error: new Error("Requête non autorisée !"),
+          });
+        }
         const filename = sauce.imageUrl.split("/images/")[1];
         fs.unlink(`images/${filename}`, () => {
           // et on ajoute la nouvelle image
@@ -71,6 +83,18 @@ exports.modifySauce = (req, res, next) => {
 exports.deleteSauce = (req, res, next) => {
   Sauce.findOne({ _id: req.params.id }) // on identifie la sauce
     .then((sauce) => {
+      // si on utilise un id de sauce qui n'existe pas (sécurité)
+      if (!sauce) {
+        res.status(404).json({
+          error: new Error("Sauce non trouvée !"),
+        });
+      }
+      // et si le userId est différent de celui de l'utilisateur qui a créé la sauce (sécurité)
+      if (sauce.userId !== req.auth.userId) {
+        res.status(401).json({
+          error: new Error("Requête non autorisée !"),
+        });
+      }
       const filename = sauce.imageUrl.split("/images/")[1]; // on récupère l'adresse de l'image
       fs.unlink(`images/${filename}`, () => {
         /// on la supprime du serveur
@@ -124,9 +148,7 @@ exports.likeSauce = (req, res, next) => {
             }
           )
             .then(() =>
-              res
-                .status(200)
-                .json({ message: "Vous avez annulé votre like !" })
+              res.status(200).json({ message: "Vous avez annulé votre like !" })
             )
             .catch((error) => res.status(400).json({ error }));
         } else if (sauce.usersDisliked.indexOf(req.body.userId) !== -1) {
@@ -139,11 +161,9 @@ exports.likeSauce = (req, res, next) => {
             }
           )
             .then(() =>
-              res
-                .status(200)
-                .json({
-                  message: "Vous avez annulé votre dislike !",
-                })
+              res.status(200).json({
+                message: "Vous avez annulé votre dislike !",
+              })
             )
             .catch((error) => res.status(400).json({ error }));
         }
