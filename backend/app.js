@@ -7,7 +7,7 @@ const mongoose = require("mongoose");
 //importation de path (natif de node) qui donne accès aux chemins du système de fichier
 const path = require("path");
 
-//Importation du package helmet pour sécuriser les en-têtes HTTP
+//Importation du package helmet pour sécuriser les en-têtes de requêtes HTTP
 const helmet = require("helmet");
 
 //Importation du package nocache pour désactiver la mise en cache npm
